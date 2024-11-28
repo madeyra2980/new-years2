@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./style.css">
+  <title>Новогодний праздник</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      text-align: center;
+    }
+    header img, .footer img {
+      width: 100%;
+    }
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      width: 300px;
+      text-align: left;
+    }
+    .modal-content h2 {
+      margin-top: 0;
+    }
+    .form-item {
+      margin-top: 20px;
+    }
+    .close-btn, button[type="submit"] {
+      background-color: #f44336;
+      color: white;
+      border: none;
+      padding: 10px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+    .close-btn {
+      background-color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <img src="./assets/top.svg" alt="Header Top">
+    </header>
+
+    <div class="marry-christmas">
+      <img src="./assets/2.png" alt="Новогодний заголовок">
+    </div>
+
+    <div class="title-top">
+      <p>Присоединяйся к нашему новогоднему празднику!</p>
+    </div>
+
+    <div class="title-description">
+      <p>
+        Дорогие студенты и преподаватели Innovative College! Новый год уже на пороге, и мы готовим для вас незабываемую вечеринку! 🎉
+        Танцы, музыка, веселье и море сюрпризов ждут тебя!
+      </p>
+    </div>
+
+    <div class="title-item">
+      <div class="title-time-description">
+        <h1>Дата и время:</h1>
+        <p>19 декабря</p>
+      </div>
+      <div class="title-location-description">
+        <h1>Место:</h1>
+        <p>Глинки 40</p>
+        <h1>Время:</h1>
+        <p>15:00</p>
+      </div>
+    </div>
+
+    <div class="form-item">
+      <h1>Выберите свою роль:</h1>
+      <form id="role-form">
+        <label>
+          <input type="radio" name="role" value="student"> Студент
+        </label>
+        <label>
+          <input type="radio" name="role" value="teacher"> Преподаватель
+        </label>
+        <label>
+          <input type="radio" name="role" value="other"> Другое
+        </label>
+      </form>
+    </div>
+
+    <div class="footer">
+      <img src="./assets/3.png" alt="footer">
+    </div>
+  </div>
+
+  <div id="modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+      <h2 id="role-title"></h2>
+      <form id="modal-form">
+        <label>
+          Имя:
+          <input type="text" name="firstName" required>
+        </label>
+        <label>
+          Фамилия:
+          <input type="text" name="lastName" required>
+        </label>
+        <label id="group-or-position-label">
+          Название группы/должность:
+          <input type="text" name="groupOrPosition" required>
+        </label>
+        <button type="submit">Сохранить</button>
+      </form>
+      <button class="close-btn" onclick="closeModal()">Закрыть</button>
+    </div>
+  </div>
+
+  <script>
+    const TELEGRAM_BOT_TOKEN = '7964767216:AAExtiz5JR-H40tbQzP3G6LETUznlzqip3A';
+    const TELEGRAM_CHAT_ID = '7449665353';
+    const modal = document.getElementById('modal');
+    const roleTitle = document.getElementById('role-title');
+    const groupOrPositionLabel = document.getElementById('group-or-position-label');
+    let selectedRole = '';
+
+    document.getElementById('role-form').addEventListener('change', (event) => {
+      selectedRole = event.target.value;
+      roleTitle.textContent = `Вы выбрали роль: ${selectedRole === 'student' ? 'Студент' : selectedRole === 'teacher' ? 'Преподаватель' : 'Другое'}`;
+      groupOrPositionLabel.textContent = selectedRole === 'student' ? 'Название группы:' : 'Должность:';
+      modal.style.display = 'flex';
+    });
+
+    document.getElementById('modal-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const formData = new FormData(event.target);
+      const firstName = formData.get('firstName');
+      const lastName = formData.get('lastName');
+      const groupOrPosition = formData.get('groupOrPosition');
+      
+      const message = selectedRole === 'student'
+        ? `👨‍🎓 Студент\nИмя: ${firstName}\nФамилия: ${lastName}\nГруппа: ${groupOrPosition}`
+        : selectedRole === 'teacher'
+        ? `👩‍🏫 Преподаватель\nИмя: ${firstName}\nФамилия: ${lastName}\nДолжность: ${groupOrPosition}`
+        : `👤 Другое\nИмя: ${firstName}\nФамилия: ${lastName}\nДолжность: ${groupOrPosition}`;
+
+      try {
+        await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: message }),
+        });
+        alert('Данные успешно отправлены в Telegram!');
+      } catch (error) {
+        console.error('Ошибка при отправке в Telegram:', error);
+        alert('Не удалось отправить данные в Telegram.');
+      }
+      closeModal();
+    });
+
+    function closeModal() {
+      modal.style.display = 'none';
+      selectedRole = '';
+    }
+  </script>
+</body>
+</html>

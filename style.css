@@ -205,3 +205,14 @@
     border: 1px solid #ccc;
     border-radius: 4px;
   }
+
+
+  .title-description{
+    width: 400px;
+    height: 400px;
+    margin: auto;
+  }
+
+  .title-description img{
+    width: 100%;
+  }
